@@ -4,14 +4,26 @@ using UnityEngine;
 
 public class HealthSystem : MonoBehaviour
 {
-    private int health;
-    private int maxHealth;
-    
+    [SerializeField] private int health;
+    public int Health
+    {
+        get => health;
+    }
+    [SerializeField] private int maxHealth;
+    public int MaxHealth
+    {
+        get => maxHealth;
+    }
+    private bool isAlive;
+    public bool IsAlive
+    {
+        get => isAlive;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        isAlive = true;
     }
 
     // Update is called once per frame
@@ -50,7 +62,7 @@ public class HealthSystem : MonoBehaviour
         else if(health < 0)
         {
             health = 0;
-            // die functionality in here
+            isAlive = false;
         }
     }
 

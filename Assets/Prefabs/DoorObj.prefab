@@ -515,4 +515,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   door: {fileID: 2948933139539394132}
   openSpeed: 1
-  maxY: 5
+  maxY: 4
+  isLocked: 0

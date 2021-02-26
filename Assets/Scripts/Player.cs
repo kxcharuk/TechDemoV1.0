@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] HealthSystem myHealth;
+    [SerializeField] Camera mainCamera;
     Vector3 direction;
     private float horizontal;
     private float vertical;
 
-    private float speed;
+    [SerializeField] float rotateSpeed;
+
+    [SerializeField] private float speed;
     [SerializeField] private float canTeleportDelay;
 
     [SerializeField] Vector3 minimizeScale = new Vector3(0.5f, 0.5f, 0.5f);
@@ -27,6 +31,10 @@ public class Player : MonoBehaviour
     Rigidbody myRb;
 
     [SerializeField] private int keys;
+    public int Keys
+    {
+        get => keys;
+    }
 
     // init
     void Start()
@@ -38,7 +46,7 @@ public class Player : MonoBehaviour
         isSmall = false;
         isBusy = false;
         canTeleport = true;
-        speed = 4;
+        //speed = 4;
         respawnPosition = transform.position;
         originalScale = transform.localScale;
     }
@@ -59,12 +67,37 @@ public class Player : MonoBehaviour
         horizontal = Input.GetAxisRaw("Horizontal");
 
         direction = new Vector3(horizontal, 0, vertical).normalized;
-        transform.Translate(direction * speed * Time.deltaTime);
+        Vector3 movementVector = Quaternion.Euler(0, mainCamera.gameObject.transform.eulerAngles.y, 0) * direction;
+        direction = transform.position + movementVector * speed * Time.deltaTime;
+        if(movementVector.magnitude == 0) { return; }
+        else
+        {
+            Quaternion rotation = Quaternion.LookRotation(movementVector);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, rotateSpeed);
+        }
+
+        transform.position = direction;
+
+        //transform.Translate(direction * speed * Time.deltaTime);
+
     }
 
     private void Respawn()
     {
-        transform.position = respawnPosition;
+        GetComponent<HealthSystem>().TakeDamage(1);
+        if (!myHealth.IsAlive)
+        {
+            Death();
+        }
+        else
+        {
+            transform.position = respawnPosition;
+        }
+    }
+
+    private void Death()
+    {
+        // handing reseting health and subtracting lives etc. Maybe just have a game over screen...
     }
     
 
@@ -92,7 +125,9 @@ public class Player : MonoBehaviour
         }
         else if(other.tag == "Health")
         {
-            // add heal function here onces healthsytem is created
+            int healAmount = other.GetComponent<RespawningCollectible>().Amount;
+            myHealth.Heal(healAmount);
+            other.GetComponent<RespawningCollectible>().StartTimer = true;
         }
         else if (other.tag == "Collectible(Respawning)")
         {
@@ -121,6 +156,7 @@ public class Player : MonoBehaviour
                     {
                         door.IsLocked = false;
                         door.Open();
+                        keys--;
                     }
                     else return;
                 }

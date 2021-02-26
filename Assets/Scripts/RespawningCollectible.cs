@@ -15,6 +15,12 @@ public class RespawningCollectible : MonoBehaviour
     }
     private bool isRespawning;
 
+    [SerializeField] private int amount;
+    public int Amount
+    {
+        get => amount;
+    }
+
     BoxCollider myCol;
     MeshRenderer myMesh;
 
